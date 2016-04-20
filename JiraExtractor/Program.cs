@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity.Core.Common.CommandTrees;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -334,7 +336,7 @@ namespace JiraExtractor
                                     ticketFromDB.Assignee = assigneeFromDb;
                                     ticketFromDB.Created = issue.fields.created;
                                     ticketFromDB.Key = issue.key;
-                                    ticketFromDB.Lable = ticketLablesList;
+                                    if(ScrambledEquals(ticketFromDB.Lable, ticketLablesList)) ticketFromDB.Lable = ticketLablesList;
                                     ticketFromDB.Priority = priorityFromDb;
                                     ticketFromDB.Reporter = reporterFromDb;
                                     ticketFromDB.Status = statusFromDb;
@@ -381,6 +383,16 @@ namespace JiraExtractor
                 }
             }
 
+        }
+
+        public static bool ScrambledEquals<T>(IEnumerable<T> list1, IEnumerable<T> list2)
+        {
+            if(list1 == null & list2 == null) return true;
+            if (list1 == null & list2 != null) return false;
+            if (list1 != null & list2 == null) return false;
+            var deletedItems = list1.Except(list2).Any();
+            var newItems = list2.Except(list1).Any();
+            return !newItems && !deletedItems;
         }
     }
 }
